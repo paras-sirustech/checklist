@@ -1,0 +1,70 @@
+:root {
+  --transparent: transparent;
+  --black: #22292f;
+  --white: white;
+  --white-50: rgba(255, 255, 255, 0.5);
+  --danger: #ed1c24;
+  --success: #47b374;
+  --warning: #ffea61;
+  --info: #3a5c88;
+  --primary: #ed1c24;
+  --primary-dark: #983e3e;
+  --primary-70: rgba(196, 84, 84, 0.7);
+  --primary-50: rgba(196, 84, 84, 0.5);
+  --primary-30: rgba(196, 84, 84, 0.3);
+  --primary-10: rgba(196, 84, 84, 0.1);
+  --logo: #f6fbff;
+  font-size: 13px;
+  --sidebar-icon: #e1b8b7;
+  --20: #f6fbff;
+  --30: #f4f7fa;
+  --40: #eef1f4;
+  --50: #e3e7eb;
+  --60: #bacad6;
+  --70: #b3b9bf;
+  --80: #7c858e;
+  --90: #252d37;
+  --90-half: rgba(40, 54, 61, 0.5);
+}
+
+.bg-grad-sidebar {
+  background-image: -webkit-gradient(
+      linear,
+      left bottom,
+      left top,
+      from(#221d20),
+      to(#221d20)
+  );
+
+  background-image: linear-gradient(0deg, #221d20, #221d20);
+}
+
+body {
+  font-size: 13px;
+}
+.px-view {
+  padding-left: 0.8rem;
+  padding-right: 0.8rem;
+}
+.py-view {
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
+}
+.search-input {
+  border: none !important;
+  padding-top: 3px !important;
+}
+.search-icon-center {
+  height: 12px;
+  width: 12px;
+}
+.text-primary {
+  color: #666;
+}
+
+
+@media (max-width: 992px) {
+  .modal {
+      top: 150px !important;
+  }
+}
