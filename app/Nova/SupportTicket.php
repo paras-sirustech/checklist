@@ -54,7 +54,7 @@ class SupportTicket extends Resource
      */
     public function fields(Request $request)
     {
-        $unAvailable = \App\Models\Leave::whereRaw('? NOT BETWEEN from_date AND to_date', date('Y-m-d'))->pluck('user_id');
+        $unAvailable = \App\Models\Leave::whereRaw('? BETWEEN from_date AND to_date', date('Y-m-d'))->pluck('user_id');
         return [
             ID::make('Ticket ID', 'id')->detailLink(),
 
