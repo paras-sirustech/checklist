@@ -5,6 +5,7 @@ namespace App\Nova\Metrics;
 use App\Models\SupportTicket;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Laravel\Nova\Metrics\Value;
 use SaintSystems\Nova\LinkableMetrics\LinkableValue;
@@ -23,19 +24,19 @@ class SupportTicketsStatusInProgress extends Value
      */
     public function calculate(Request $request)
     {
-        if ($request->user()->access_level=='Support Staff') {
+        if ($request->user()->access_level == 'Support Staff') {
             if ($request->range == 999) {
                 $result = $this->count($request, SupportTicket::where('status', 'In Progress'));
             } else {
                 $result = $this->count($request, SupportTicket::where('status', 'In Progress')->where('assigned_to', $request->user()->id));
             }
-        } elseif ($request->user()->access_level=='Shop Staff') {
+        } elseif ($request->user()->access_level == 'Shop Staff') {
             if ($request->range == 999) {
                 $result = $this->count($request, SupportTicket::where('status', 'In Progress'));
             } else {
                 $result = $this->count($request, SupportTicket::where('status', 'In Progress')->where('created_by', $request->user()->id));
             }
-        } elseif ($request->user()->access_level=='Cluster Manager') {
+        } elseif ($request->user()->access_level == 'Cluster Manager') {
             if ($request->range == 999) {
                 $result = $this->count($request, SupportTicket::where('status', 'In Progress'));
             } else {
@@ -115,8 +116,12 @@ class SupportTicketsStatusInProgress extends Value
 //            'QTD' => 'Quarter To Date',
 //            'YTD' => 'Year To Date',
 //        ];
-        $ranges[999] = 'All';
-        $users = User::get();
+        if (Auth::user()->access_level == "Admin") {
+            $ranges[999] = 'All';
+            $users = User::get();
+        } else {
+            $users = User::where('id', Auth::user()->id)->get();
+        }
 
         foreach ($users as $user) {
             $ranges[$user->id] = $user->name;

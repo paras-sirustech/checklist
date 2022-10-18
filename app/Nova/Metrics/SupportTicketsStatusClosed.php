@@ -5,6 +5,7 @@ namespace App\Nova\Metrics;
 use App\Models\SupportTicket;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Nova\Metrics\Value;
 use SaintSystems\Nova\LinkableMetrics\LinkableValue;
 
@@ -68,9 +69,12 @@ class SupportTicketsStatusClosed extends Value
      */
     public function ranges()
     {
-        $ranges[999 ] = 'All';
-        $users = User::get();
-
+        if (Auth::user()->access_level == "Admin") {
+            $ranges[999] = 'All';
+            $users = User::get();
+        } else {
+            $users = User::where('id', Auth::user()->id)->get();
+        }
         foreach ($users as $user) {
             $ranges[$user->id] = $user->name;
         }

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="dist3">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/nova-components/MatrixSla/node_modules/math-expression-evaluator/dist.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

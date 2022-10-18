@@ -4,6 +4,7 @@ namespace App\Nova\Metrics;
 
 use App\Models\SupportTicket;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Insenseanalytics\NovaBarMetrics\BarChartMetric;
 
 class SupportTicketsBarChart extends BarChartMetric
@@ -18,7 +19,12 @@ class SupportTicketsBarChart extends BarChartMetric
      */
     public function calculate(Request $request)
     {
-        return $this->count($request, SupportTicket::select('support_tickets.*', 'users.name')->join('users', 'users.id', '=', 'support_tickets.assigned_to'), 'name');
+        if (Auth::user()->access_level == "Admin") {
+            $support = SupportTicket::select('support_tickets.*', 'users.name')->join('users', 'users.id', '=', 'support_tickets.assigned_to');
+        } else {
+            $support = SupportTicket::select('support_tickets.*', 'users.name')->join('users', 'users.id', '=', 'support_tickets.assigned_to')->where('support_tickets.assigned_to', Auth::user()->id);
+        }
+        return $this->count($request, $support, 'name');
     }
 
     /**

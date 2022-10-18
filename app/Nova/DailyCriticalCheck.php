@@ -37,6 +37,11 @@ class DailyCriticalCheck extends Resource
         'id',
     ];
 
+    public static function availableForNavigation(Request $request)
+    {
+        return $request->user()->access_level == "Admin";
+    }
+
     /**
      * Get the fields displayed by the resource.
      *

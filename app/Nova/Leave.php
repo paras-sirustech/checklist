@@ -36,6 +36,11 @@ class Leave extends Resource
         'id',
     ];
 
+    public static function availableForNavigation(Request $request)
+    {
+        return $request->user()->access_level == "Admin";
+    }
+
     public static function label()
     {
         return 'Out of Office';

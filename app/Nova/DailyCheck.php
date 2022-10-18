@@ -17,7 +17,13 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 class DailyCheck extends Resource
 {
     public static $globallySearchable = false;
+
 //    public static $displayInNavigation = false;
+
+    public static function availableForNavigation(Request $request)
+    {
+        return $request->user()->access_level == "Admin";
+    }
 
     /**
      * The model the resource corresponds to.
@@ -45,17 +51,17 @@ class DailyCheck extends Resource
     /**
      * Get the fields displayed by the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
     public function fields(Request $request)
     {
         $shopChecklistOptions = [];
-        if($this->shop){
+        if ($this->shop) {
             $shopChecklistOptions = $this->shop->getAttachedChecklistOptions();
-        } else if ($request->viaResourceId!='') {
+        } else if ($request->viaResourceId != '') {
             $shop = Shop::find($request->viaResourceId);
-            if($shop){
+            if ($shop) {
                 $shopChecklistOptions = $shop->getAttachedChecklistOptions();
             }
         } else {
@@ -75,7 +81,7 @@ class DailyCheck extends Resource
     /**
      * Get the cards available for the request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
     public function cards(Request $request)
@@ -86,7 +92,7 @@ class DailyCheck extends Resource
     /**
      * Get the filters available for the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
     public function filters(Request $request)
@@ -97,7 +103,7 @@ class DailyCheck extends Resource
     /**
      * Get the lenses available for the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
     public function lenses(Request $request)
@@ -108,7 +114,7 @@ class DailyCheck extends Resource
     /**
      * Get the actions available for the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
     public function actions(Request $request)

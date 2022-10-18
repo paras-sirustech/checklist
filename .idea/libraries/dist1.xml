@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="dist1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/nova-components/CriticalCasesP1/node_modules/math-expression-evaluator/dist.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
