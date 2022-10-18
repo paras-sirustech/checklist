@@ -67,4 +67,16 @@ class Shop extends Model
             return $options;
         }
     }
+
+    public function getAttachedChecklist1Options()
+    {
+        unset($options);
+        $checklist_options = optional($this->checklist)->criticalItems;
+        if ($checklist_options && $checklist_options->count()>0) {
+            foreach ($checklist_options as $option) {
+                $options[$option->name] = $option->name;
+            }
+            return $options;
+        }
+    }
 }

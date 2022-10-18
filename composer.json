@@ -12,15 +12,19 @@
         "adldap2/adldap2-laravel": "^6.0",
         "dillingham/nova-detail-link": "^1.0",
         "fideloper/proxy": "^4.0",
-        "gkermer/nova-text-auto-complete": "^0.0.4",
+        "gkermer/nova-text-auto-complete": "^0.0.5",
         "gregoriohc/laravel-nova-theme-responsive": "^0.8.0",
+        "insenseanalytics/nova-bar-metrics": "^1.0",
         "jenssegers/agent": "^2.6",
         "laravel/framework": "^6.2",
         "laravel/nova": "*",
         "laravel/tinker": "^1.0",
+        "maatwebsite/laravel-nova-excel": "^1.2",
         "mobiledetect/mobiledetectlib": "^2.8",
         "ooredoo/daily-checks": "*",
-        "saintsystems/nova-linkable-metrics": "^0.0.6"
+        "saintsystems/nova-linkable-metrics": "^0.0.6",
+        "ooredoo/matrix-sla": "*",
+        "ooredoo/critical-cases-p1": "*"
     },
     "require-dev": {
         "facade/ignition": "^1.4",
@@ -75,6 +79,14 @@
         {
             "type": "path",
             "url": "./nova-components/DailyChecks"
+        },
+        {
+            "type": "path",
+            "url": "./nova-components/MatrixSla"
+        },
+        {
+            "type": "path",
+            "url": "./nova-components/CriticalCasesP1"
         }
     ]
 }

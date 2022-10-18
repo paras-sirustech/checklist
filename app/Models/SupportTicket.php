@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Actions\Actionable;
 use Notification;
@@ -52,6 +53,13 @@ class SupportTicket extends Model
     public function assignee()
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function availableUser()
+    {
+        return $this->belongsTo(Leave::class, 'assigned_to')
+            ->where('from_date',"<=", Carbon::today())
+            ->orWhere('to_date',">=", Carbon::today());
     }
 
     public function creator()
@@ -109,22 +117,22 @@ class SupportTicket extends Model
         $escalation['L2'] = [2, 36];
         $escalation['L3'] = [4, 60];
 
-        if ($type=='P1') {
+        if ($type == 'P1') {
             $threshold = $escalation[$level][0];
         } else {
             $threshold = $escalation[$level][1];
         }
 
-        if ($level=='L1') {
+        if ($level == 'L1') {
             $last_escalation_at = $this->l1_escalation_at;
-        } elseif ($level=='L2') {
+        } elseif ($level == 'L2') {
             $last_escalation_at = $this->l2_escalation_at;
-        } elseif ($level=='L3') {
+        } elseif ($level == 'L3') {
             $last_escalation_at = $this->l3_escalation_at;
         }
 
-        if (is_null($last_escalation_at) && $this->status!='Closed' && $this->status!='Resolved') {
-            if ((is_null($this->last_support_team_ticket_update) || $this->last_support_team_ticket_update->diffInHours(now())>=$threshold) && $this->created_at->diffInHours(now())>=$threshold) {
+        if (is_null($last_escalation_at) && $this->status != 'Closed' && $this->status != 'Resolved') {
+            if ((is_null($this->last_support_team_ticket_update) || $this->last_support_team_ticket_update->diffInHours(now()) >= $threshold) && $this->created_at->diffInHours(now()) >= $threshold) {
                 return true;
             }
         }
@@ -145,44 +153,44 @@ class SupportTicket extends Model
         $franchisee_manager = config('services.franchisee_manager');
         $retail_head_email = config('services.retail_head_email');
 
-        $to_email=[];
+        $to_email = [];
 
-        if ($type=='P1') {
-            if ($level=='L1') {
+        if ($type == 'P1') {
+            if ($level == 'L1') {
                 $to_email[] = optional($this->assignee)->email;
                 $this->l1_escalation_at = now();
                 $this->save();
-            } elseif ($level=='L2') {
+            } elseif ($level == 'L2') {
                 $to_email[] = config('services.l2escalation_email');
-                if ($shop_manager!='') {
+                if ($shop_manager != '') {
                     $to_email[] = $shop_manager;
                 }
-                if ($cluster_manager!='') {
+                if ($cluster_manager != '') {
                     $to_email[] = $cluster_manager;
                 }
                 $this->l2_escalation_at = now();
                 $this->save();
-            } elseif ($level=='L3') {
+            } elseif ($level == 'L3') {
                 $to_email[] = config('services.l3escalation_email');
                 $to_email[] = config('services.retail_head_email');
                 $this->l3_escalation_at = now();
                 $this->save();
             }
         } else {
-            if ($level=='L1') {
+            if ($level == 'L1') {
                 $to_email[] = optional($this->assignee)->email;
                 $this->l1_escalation_at = now();
                 $this->save();
-            } elseif ($level=='L2') {
+            } elseif ($level == 'L2') {
                 $to_email[] = config('services.l2escalation_email');
-                if ($shop_manager!='') {
+                if ($shop_manager != '') {
                     $to_email[] = $shop_manager;
                 }
                 $this->l2_escalation_at = now();
                 $this->save();
-            } elseif ($level=='L3') {
+            } elseif ($level == 'L3') {
                 $to_email[] = config('services.l3escalation_email');
-                if ($cluster_manager!='') {
+                if ($cluster_manager != '') {
                     $to_email[] = $cluster_manager;
                 }
                 $this->l3_escalation_at = now();
@@ -190,13 +198,13 @@ class SupportTicket extends Model
             }
         }
 
-        if (count($to_email)>0) {
-            for ($i=0;$i<count($to_email);$i++) {
-                $this->escalations()->create(['email'=>$to_email[$i],'type'=>$type, 'level'=>$level]);
+        if (count($to_email) > 0) {
+            for ($i = 0; $i < count($to_email); $i++) {
+                $this->escalations()->create(['email' => $to_email[$i], 'type' => $type, 'level' => $level]);
             }
 
             Notification::route('mail', $to_email)->notify(new TicketEscalation($this, $type));
-            $log = 'Ticket: ' . $this->id . ' -  ' . $type . ' Escalation to ' .$level . ' - ' . json_encode($to_email, false);
+            $log = 'Ticket: ' . $this->id . ' -  ' . $type . ' Escalation to ' . $level . ' - ' . json_encode($to_email, false);
             info($log);
             return $log;
         }

@@ -3,6 +3,7 @@
 namespace App\Nova\Metrics;
 
 use App\Models\SupportTicket;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Laravel\Nova\Metrics\Value;
 use SaintSystems\Nova\LinkableMetrics\LinkableValue;
@@ -20,15 +21,30 @@ class SupportTicketsStatusClosed extends Value
     public function calculate(Request $request)
     {
         if ($request->user()->access_level=='Support Staff') {
-            $result = $this->count($request, SupportTicket::where('status', 'Closed')->where('assigned_to', $request->user()->id));
+            if ($request->range == 999) {
+                $result = $this->count($request, SupportTicket::where('status', 'Closed'));
+            } else {
+                $result = $this->count($request, SupportTicket::where('status', 'Closed')->where('assigned_to', $request->user()->id));
+            }
         } elseif ($request->user()->access_level=='Shop Staff') {
-            $result = $this->count($request, SupportTicket::where('status', 'Closed')->where('created_by', $request->user()->id));
+            if ($request->range == 999) {
+                $result = $this->count($request, SupportTicket::where('status', 'Closed'));
+            } else {
+                $result = $this->count($request, SupportTicket::where('status', 'Closed')->where('created_by', $request->user()->id));
+            }
         } elseif ($request->user()->access_level=='Cluster Manager') {
-            $result = $this->count($request, SupportTicket::where('status', 'Closed')->whereIn('shop_id', $request->user()->cluster_shop_ids()));
+            if ($request->range == 999) {
+                $result = $this->count($request, SupportTicket::where('status', 'Closed'));
+            } else {
+                $result = $this->count($request, SupportTicket::where('status', 'Closed')->where('shop_id', $request->user()->cluster_shop_ids()));
+            }
         } else {
-            $result = $this->count($request, SupportTicket::where('status', 'Closed'));
+            if ($request->range == 999) {
+                $result = $this->count($request, SupportTicket::where('status', 'Closed'));
+            } else {
+                $result = $this->count($request, SupportTicket::where('status', 'Closed')->where('assigned_to', $request->range));
+            }
         }
-
 
         $filters = [
             [
@@ -52,16 +68,23 @@ class SupportTicketsStatusClosed extends Value
      */
     public function ranges()
     {
-        return [
-            7 => '7 Days',
-            30 => '30 Days',
-            60 => '60 Days',
-            365 => '365 Days',
-            'MTD' => 'Month To Date',
-            'QTD' => 'Quarter To Date',
-            'YTD' => 'Year To Date',
-            999 => 'All Time',
-        ];
+        $ranges[999 ] = 'All';
+        $users = User::get();
+
+        foreach ($users as $user) {
+            $ranges[$user->id] = $user->name;
+        }
+        return $ranges;
+//        return [
+//            7 => '7 Days',
+//            30 => '30 Days',
+//            60 => '60 Days',
+//            365 => '365 Days',
+//            'MTD' => 'Month To Date',
+//            'QTD' => 'Quarter To Date',
+//            'YTD' => 'Year To Date',
+//            999 => 'All Time',
+//        ];
     }
 
     /**

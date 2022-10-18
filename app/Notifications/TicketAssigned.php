@@ -54,6 +54,7 @@ class TicketAssigned extends Notification
                     ->line('Ticket Subject: ' . $this->support_ticket->subject)
                     ->line('Description: ' . $this->support_ticket->description)
                     ->action('View the Ticket', $this->support_ticket->url)
+                    ->attach(public_path('/storage/'.$this->support_ticket->attachment),['as' => 'campaign', 'mime' => 'image/png'])
                     ->line('Thank you for using Checklist Application');
     }
 

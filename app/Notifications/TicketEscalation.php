@@ -55,7 +55,8 @@ class TicketEscalation extends Notification
                     ->line('Last Updated: ' . formattedDateTimeString($this->support_ticket->last_support_team_ticket_update))
                     //->line('Created On: ' . $this->support_ticket->created_at->toDayDateTimeString())
                     ->action('View the Ticket', $this->support_ticket->url)
-                    ->line('Thank you for using Checklist Application');
+                    ->line('Thank you for using Checklist Application')
+                    ->attach(public_path('/storage/'.$this->support_ticket->attachment),['as' => 'campaign', 'mime' => 'image/png']);
     }
 
     /**

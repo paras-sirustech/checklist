@@ -17,8 +17,8 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 class DailyCheck extends Resource
 {
     public static $globallySearchable = false;
-    public static $displayInNavigation = false;
-    
+//    public static $displayInNavigation = false;
+
     /**
      * The model the resource corresponds to.
      *

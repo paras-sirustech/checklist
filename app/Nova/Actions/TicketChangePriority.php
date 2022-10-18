@@ -48,7 +48,7 @@ class TicketChangePriority extends Action
             Select::make('Priority')->options([
                 'P1' => 'P1',
                 'P2' => 'P2',
-                'P3' => 'P3',
+                'PX' => 'PX',
             ])->rules('required')->sortable(),
         ];
     }

@@ -96,7 +96,7 @@ class User extends Authenticatable
                 $data['bot_name'] = $agent->robot();
             }
         }
-        
+
         if ($data['ip_address']!='') {
             $shop_from_ip = ShopIpAddress::where('ip_address', $data['ip_address'])->first();
             if ($shop_from_ip) {
@@ -105,5 +105,10 @@ class User extends Authenticatable
         }
 
         $this->login_history()->create($data);
+    }
+
+    public function leave()
+    {
+        return $this->hasMany(Leave::class,'user_id','id');
     }
 }

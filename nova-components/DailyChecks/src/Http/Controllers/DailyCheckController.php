@@ -7,6 +7,7 @@ use App\Models\DailyCheckItem;
 use App\Notifications\TicketAssigned;
 use App\Models\Shop;
 use App\Models\SupportTicket;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
@@ -26,7 +27,7 @@ class DailyCheckController extends BaseController
             abort(403);
         }
 
-        if ($user->access_level=='Admin') {
+        if ($user->access_level == 'Admin') {
             $shops = Shop::get();
         } else {
             $shops = Shop::whereHas('ip_addresses', function ($query) {
@@ -36,9 +37,9 @@ class DailyCheckController extends BaseController
 
         $data = [];
         foreach ($shops as $shop) {
-            $data[] = ['value'=> $shop->id, 'label' => $shop->name];
+            $data[] = ['value' => $shop->id, 'label' => $shop->name];
         }
-        
+
         return $data;
     }
 
@@ -64,7 +65,7 @@ class DailyCheckController extends BaseController
             'date' => 'date|required',
         ]);
 
-        if ($user->access_level=='Admin') {
+        if ($user->access_level == 'Admin') {
             $shop = Shop::with('checklist.items')->where('id', request('shop'))->first();
         } else {
             $shop = Shop::with('checklist.items')->where('id', request('shop'))->whereHas('ip_addresses', function ($query) {
@@ -94,12 +95,12 @@ class DailyCheckController extends BaseController
         }
 
         $daily_check = DailyCheck::firstOrCreate([
-            'shop_id'=>request('shop'),
+            'shop_id' => request('shop'),
             'checking_date' => request('date'),
         ]);
 
         $daily_check_item = DailyCheckItem::firstOrCreate([
-            'daily_check_id'=>  $daily_check->id,
+            'daily_check_id' => $daily_check->id,
             'checklist_item_id' => request('checklist_item_id'),
         ]);
 
@@ -124,7 +125,7 @@ class DailyCheckController extends BaseController
         $daily_check_item = $this->saveDailyCheckItem($request);
 
         $support_ticket = SupportTicket::firstOrCreate([
-            'status'=>'Open',
+            'status' => 'Open',
             'created_by' => $user->id,
             'daily_check_id' => $daily_check_item->daily_check_id,
             'daily_check_item_id' => $daily_check_item->id,
@@ -169,7 +170,7 @@ class DailyCheckController extends BaseController
             'date' => 'required|before_or_equal:today',
         ]);
 
-        if ($user->access_level=='Admin') {
+        if ($user->access_level == 'Admin') {
             $shop = Shop::with('checklist.items')->where('id', request('shop'))->first();
         } else {
             $shop = Shop::with('checklist.items')->where('id', request('shop'))->whereHas('ip_addresses', function ($query) {
@@ -182,7 +183,7 @@ class DailyCheckController extends BaseController
         }
 
         $daily_check = DailyCheck::where('shop_id', $shop->id)->whereDate('checking_date', request('date'))->first();
-        if ($daily_check->is_submission_complete===true) {
+        if ($daily_check->is_submission_complete === true) {
             return json_response(['type' => 'error', 'message' => 'Daily check already filed for the selected date'], 412);
         }
 
@@ -198,5 +199,24 @@ class DailyCheckController extends BaseController
         $redirect_to = config('app.url') . '/app/resources/daily-checks/' . $daily_check->id;
 
         return json_response(['type' => 'success', 'message' => 'Successfully filed. Redirecting..', 'redirect' => $redirect_to]);
+    }
+
+    public function isExist(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(403);
+        }
+
+        $isExist = SupportTicket::where(['shop_id' => $request->get('shop'), 'checklist_item_id' => $request->get('checklist_item_id')])
+            ->whereIn('status', ['Open', 'In Progress'])
+            ->where('created_at', '>=', Carbon::now()->subDays(7))
+            ->first();
+
+        if (!empty($isExist)) {
+            return json_response(['type' => 'success', 'message' => 'Ticket Already exist.', 'data' => $isExist]);
+        } else {
+            return json_response(['type' => 'error', 'message' => '']);
+        }
     }
 }

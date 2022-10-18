@@ -10,3 +10,4 @@ Route::post('/file', DailyCheckController::class . '@fileDailyCheck');
 Route::post('/save-item', DailyCheckController::class . '@saveDailyCheckItem');
 Route::post('/item-create-issue', DailyCheckController::class . '@createDailyCheckIssue');
 Route::post('/file', DailyCheckController::class . '@fileDailyCheck');
+Route::post('/isExist', DailyCheckController::class . '@isExist');

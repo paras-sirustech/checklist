@@ -4,8 +4,8 @@ use Illuminate\Http\Middleware\CheckResponseForModifications;
 use Illuminate\Support\Facades\Route;
 
 // Scripts & Styles...
-Route::get('/scripts/{script}', 'ScriptController@show')->middleware(CheckResponseForModifications::class);
-Route::get('/styles/{style}', 'StyleController@show')->middleware(CheckResponseForModifications::class);
+    Route::get('/scripts/{script}', 'ScriptController@show')->middleware(CheckResponseForModifications::class);
+    Route::get('/styles/{style}', 'StyleController@show')->middleware(CheckResponseForModifications::class);
 
 // Global Search...
 Route::get('/search', 'SearchController@index');
@@ -84,3 +84,8 @@ Route::get('/{resource}/morphable/{field}', 'MorphableController@index');
 Route::post('/{resource}/{resourceId}/attach/{relatedResource}', 'ResourceAttachController@handle');
 Route::post('/{resource}/{resourceId}/update-attached/{relatedResource}/{relatedResourceId}', 'AttachedResourceUpdateController@handle');
 Route::post('/{resource}/{resourceId}/attach-morphed/{relatedResource}', 'MorphedResourceAttachController@handle');
+
+
+Route::get('test',function (){
+    return response()->json(['status'=>true,'msg'=>'hello world!']);
+});

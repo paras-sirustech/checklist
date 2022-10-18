@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Nova\Filters\TicketById;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
@@ -17,6 +18,7 @@ use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Gkermer\TextAutoComplete\TextAutoComplete;
 use App\Models\ChecklistItem;
+use Maatwebsite\LaravelNovaExcel\Actions\DownloadExcel;
 
 class SupportTicket extends Resource
 {
@@ -41,22 +43,23 @@ class SupportTicket extends Resource
      * @var array
      */
     public static $search = [
-        'subject', 'status'
+        'id', 'subject', 'status'
     ];
 
     /**
      * Get the fields displayed by the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
     public function fields(Request $request)
     {
+        $unAvailable = \App\Models\Leave::whereRaw('? NOT BETWEEN from_date AND to_date', date('Y-m-d'))->pluck('user_id');
         return [
             ID::make('Ticket ID', 'id')->detailLink(),
 
             TextAutoComplete::make('Subject', 'subject')->items(ChecklistItem::where('checklist_id', 1)->where('priority', 'P1')->get()->pluck('name'))->sortable()
-            ->rules('required', 'max:255'),
+                ->rules('required', 'unique:support_tickets,subject,NULL,id,shop_id,' . $request->shop, 'max:255'),
 
             BelongsTo::make('Shop')->nullable(),
 
@@ -67,7 +70,11 @@ class SupportTicket extends Resource
                 'Resolved' => 'Resolved',
             ])->exceptOnForms(),
 
-            BelongsTo::make('Assigned To', 'assignee', 'App\Nova\User')->sortable(),
+//            BelongsTo::make('Assigned To', 'availableUser', 'App\Nova\User')->sortable(),
+
+            Select::make('Assigned To')->options(
+                \App\Models\User::whereNotIn('id', $unAvailable)->pluck('name', 'id'))->sortable()
+                ->rules('required')->displayUsingLabels(),
 
             Text::make('Priority')->sortable()->exceptOnForms()->hideFromIndex(),
 
@@ -78,7 +85,7 @@ class SupportTicket extends Resource
             BelongsTo::make('Created By', 'creator', 'App\Nova\User')->onlyOnDetail(),
             DateTime::make('Created', 'created_at')->format('Do MMM YY')->sortable()->exceptOnForms(),
             DateTime::make('Updated', 'updated_at')->format('Do MMM YY')->sortable()->exceptOnForms(),
-            Textarea::make('Description')->rules('required', 'min:10')->rows(5)->alwaysShow()->hideFromIndex(),
+            Textarea::make('Description')->rules('required')->rows(5)->alwaysShow()->hideFromIndex(),
             Image::make('Attachment')->disk('public')->storeAs(function (Request $request) {
                 return Str::slug($request->subject, '-') . '-attachment-' . time() . '.' . $request->attachment->getClientOriginalExtension();
             })->hideFromIndex(),
@@ -88,11 +95,11 @@ class SupportTicket extends Resource
 
     public static function indexQuery(NovaRequest $request, $query)
     {
-        if ($request->user()->access_level=='Support Staff') {
+        if ($request->user()->access_level == 'Support Staff') {
             return $query->where('assigned_to', $request->user()->id);
-        } elseif ($request->user()->access_level=='Shop Staff') {
+        } elseif ($request->user()->access_level == 'Shop Staff') {
             return $query->where('created_by', $request->user()->id);
-        } elseif ($request->user()->access_level=='Cluster Manager') {
+        } elseif ($request->user()->access_level == 'Cluster Manager') {
             return $query->whereIn('shop_id', $request->user()->cluster_shop_ids());
         }
 
@@ -101,23 +108,22 @@ class SupportTicket extends Resource
 
     public static function detailQuery(NovaRequest $request, $query)
     {
-        if ($request->user()->access_level=='Support Staff') {
+        if ($request->user()->access_level == 'Support Staff') {
             return $query->where('assigned_to', $request->user()->id);
-        } elseif ($request->user()->access_level=='Shop Staff') {
+        } elseif ($request->user()->access_level == 'Shop Staff') {
             return $query->where('created_by', $request->user()->id);
-        } elseif ($request->user()->access_level=='Cluster Manager') {
+        } elseif ($request->user()->access_level == 'Cluster Manager') {
             return $query->whereIn('shop_id', $request->user()->cluster_shop_ids());
         }
 
         return $query;
     }
 
-    
 
     /**
      * Get the cards available for the request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
     public function cards(Request $request)
@@ -128,7 +134,7 @@ class SupportTicket extends Resource
     /**
      * Get the filters available for the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
     public function filters(Request $request)
@@ -140,13 +146,14 @@ class SupportTicket extends Resource
             new Filters\TicketCreatedTo,
             new Filters\ShopFilter,
             new Filters\TicketAssignee,
+            new Filters\TicketCreatedBy
         ];
     }
 
     /**
      * Get the lenses available for the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
     public function lenses(Request $request)
@@ -157,7 +164,7 @@ class SupportTicket extends Resource
     /**
      * Get the actions available for the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
     public function actions(Request $request)
@@ -174,24 +181,25 @@ class SupportTicket extends Resource
                 }
                 return false;
             }), */
+            new DownloadExcel,
             (new Actions\TicketSetDueDate)->canSee(function ($request) {
-                if ($request->user()->access_level=='Admin' || $request->user()->access_level=='Support Staff') {
+                if ($request->user()->access_level == 'Admin' || $request->user()->access_level == 'Support Staff') {
                     return true;
                 }
                 return false;
             })->canRun(function ($request, $user) {
-                if ($request->user()->access_level=='Admin' || $request->user()->access_level=='Support Staff') {
+                if ($request->user()->access_level == 'Admin' || $request->user()->access_level == 'Support Staff') {
                     return true;
                 }
                 return false;
             }),
             (new Actions\TicketChangeAssignee)->canSee(function ($request) {
-                if ($request->user()->access_level=='Admin' || $request->user()->access_level=='Support Staff') {
+                if ($request->user()->access_level == 'Admin' || $request->user()->access_level == 'Support Staff') {
                     return true;
                 }
                 return false;
             })->canRun(function ($request, $user) {
-                if ($request->user()->access_level=='Admin' || $request->user()->access_level=='Support Staff') {
+                if ($request->user()->access_level == 'Admin' || $request->user()->access_level == 'Support Staff') {
                     return true;
                 }
                 return false;

@@ -52,6 +52,7 @@ class ChecklistItem extends Resource
             Select::make('Priority')->options([
                 'P1' => 'P1',
                 'P2' => 'P2',
+                'PX' => 'PX',
             ])->rules('required')->sortable(),
         ];
     }

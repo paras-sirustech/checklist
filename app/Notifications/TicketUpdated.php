@@ -28,7 +28,7 @@ class TicketUpdated extends Notification
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed  $notifiable
+     * @param mixed $notifiable
      * @return array
      */
     public function via($notifiable)
@@ -39,29 +39,30 @@ class TicketUpdated extends Notification
     /**
      * Get the mail representation of the notification.
      *
-     * @param  mixed  $notifiable
+     * @param mixed $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->subject('Ticket #' . $this->support_ticket->id . ' has been updated - ' . config('app.name'))
-                    ->greeting('Ticket Updated!')
-                    //->cc($this->support_ticket->email_cc())
-                    ->line('----------------------------------------------')
-                    ->line($this->ticket_reply->description)
-                    ->line('----------------------------------------------')
-                    ->line('Updated By: ' . $this->ticket_reply->user->name)
-                    ->line('Updated On: ' . formattedDateTimeString($this->ticket_reply->created_at))
-                    ->line('Ticket Subject: ' . $this->support_ticket->subject)
-                    ->action('View the Ticket', $this->support_ticket->url)
-                    ->line('Thank you for using Checklist Application');
+            ->subject('Ticket #' . $this->support_ticket->id . ' has been updated - ' . config('app.name'))
+            ->greeting('Ticket Updated!')
+            //->cc($this->support_ticket->email_cc())
+            ->line('----------------------------------------------')
+            ->line($this->ticket_reply->description)
+            ->line('----------------------------------------------')
+            ->line('Updated By: ' . $this->ticket_reply->user->name)
+            ->line('Updated On: ' . formattedDateTimeString($this->ticket_reply->created_at))
+            ->line('Ticket Subject: ' . $this->support_ticket->subject)
+            ->action('View the Ticket', $this->support_ticket->url)
+            ->line('Thank you for using Checklist Application')
+            ->attach(public_path('/storage/' . $this->support_ticket->attachment), ['as' => 'campaign', 'mime' => 'image/png']);
     }
 
     /**
      * Get the array representation of the notification.
      *
-     * @param  mixed  $notifiable
+     * @param mixed $notifiable
      * @return array
      */
     public function toArray($notifiable)

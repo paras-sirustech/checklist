@@ -44,7 +44,7 @@ class DailyCheck extends Model
 
     public function support_tickets()
     {
-        return $this->hasMany(SupportTicket::class);
+        return $this->hasMany(SupportTicket::class,'daily_check_id');
     }
 
     public function getChecklistItemStatusAttribute()

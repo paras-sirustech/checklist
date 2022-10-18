@@ -2,7 +2,8 @@
 
 namespace App\Providers;
 
-use Ooredoo\DailyChecks\DailyChecks;
+use App\Nova\Metrics\SupportTicketsBarChart;
+use Ooredoo\CriticalCasesP1\CriticalCasesP1;
 use App\Models\User;
 use Laravel\Nova\Nova;
 use App\Nova\Metrics\NewUsers;
@@ -21,6 +22,8 @@ use App\Nova\Metrics\SupportTicketsL3Escalation;
 
 use Illuminate\Support\Facades\Gate;
 use Laravel\Nova\NovaApplicationServiceProvider;
+use Ooredoo\DailyChecks\DailyChecks;
+use Ooredoo\MatrixSla\MatrixSla;
 
 class NovaServiceProvider extends NovaApplicationServiceProvider
 {
@@ -81,14 +84,16 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     {
         return [
             (new SupportTicketByStatus)->width('1/3'),
-            (new SupportTicketsUnresolvedByUsers)->width('1/3'),
-            (new SupportTicketsPerDay)->width('1/3'),
-            (new SupportTicketsStatusOpen)->width('1/3'),
+//            (new SupportTicketsUnresolvedByUsers)->width('1/3'),
+//            (new SupportTicketsPerDay)->width('1/3'),
+            (new SupportTicketsBarChart)->width('1/3'),
+//            (new SupportTicketsStatusOpen)->width('1/3'),
             (new SupportTicketsStatusInProgress)->width('1/3'),
-            (new SupportTicketsStatusResolved)->width('1/3'),
+//            (new SupportTicketsStatusResolved)->width('1/3'),
             (new SupportTicketsStatusClosed)->width('1/3'),
             (new SupportTicketsL2Escalation)->width('1/3'),
             (new SupportTicketsL3Escalation)->width('1/3'),
+            (new MatrixSla)->width('full'),
             //(new NewUsers)->width('1/3'),
             //(new UsersPerDay)->width('1/3'),
         ];
@@ -113,6 +118,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     {
         return [
             new DailyChecks,
+            new CriticalCasesP1,
         ];
     }
 

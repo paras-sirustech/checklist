@@ -5,7 +5,7 @@
     </loading-view>
 
   <form @submit.prevent="startDailyCheck" autocomplete="off" v-if="!loading">
-    
+
       <div class="mb-8">
         <h1 class="mb-3 text-90 font-normal text-2xl">Daily Check</h1>
         <div class="card">
@@ -33,7 +33,7 @@
                 :errors="validationErrors"
             />
 
-            
+
         </div>
       </div>
       <div class="flex items-center">
@@ -103,7 +103,7 @@ export default {
             if(error.response.data.message){
               this.$toasted.show(error.response.data.message, { type: 'error' });
             }
-            
+
             if (error.response.status == 422) {
                 this.validationErrors = new Errors(error.response.data.errors)
             }

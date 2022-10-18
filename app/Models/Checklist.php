@@ -13,7 +13,13 @@ class Checklist extends Model
 
     public function items()
     {
-        return $this->hasMany(ChecklistItem::class)->where('priority', '!=', 'P1')->orderBy('priority', 'ASC')->orderBy('name', 'ASC');
+//        ->where('priority', '!=', 'P1')
+        return $this->hasMany(ChecklistItem::class)->where('priority', '!=', 'PX')->orderBy('priority', 'ASC')->orderBy('name', 'ASC');
+    }
+
+    public function criticalItems()
+    {
+        return $this->hasMany(ChecklistItem::class)->where('priority', '=', 'PX')->orderBy('priority', 'ASC')->orderBy('name', 'ASC');
     }
 
     public function allItems()

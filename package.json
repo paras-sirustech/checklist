@@ -11,7 +11,11 @@
         "build-checklist": "cd nova-components/Checklist && npm run dev",
         "build-checklist-prod": "cd nova-components/Checklist && npm run prod",
         "build-daily-checks": "cd nova-components/DailyChecks && npm run dev",
-        "build-daily-checks-prod": "cd nova-components/DailyChecks && npm run prod"
+        "build-daily-checks-prod": "cd nova-components/DailyChecks && npm run prod",
+        "build-matrix-sla": "cd nova-components/MatrixSla && npm run dev",
+        "build-matrix-sla-prod": "cd nova-components/MatrixSla && npm run prod",
+        "build-critical-cases-p1": "cd nova-components/CriticalCasesP1 && npm run dev",
+        "build-critical-cases-p1-prod": "cd nova-components/CriticalCasesP1 && npm run prod"
     },
     "devDependencies": {
         "axios": "^0.19",
@@ -20,6 +24,7 @@
         "lodash": "^4.17.13",
         "resolve-url-loader": "^2.3.1",
         "sass": "^1.15.2",
-        "sass-loader": "^7.1.0"
+        "sass-loader": "^7.1.0",
+        "vue-template-compiler": "^2.6.14"
     }
 }

@@ -3,21 +3,30 @@
 namespace App\Nova\Metrics;
 
 use App\Models\SupportTicket;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Laravel\Nova\Metrics\Trend;
 
 class SupportTicketsPerDay extends Trend
 {
     public $name = 'New Tickets';
+
     /**
      * Calculate the value of the metric.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return mixed
      */
     public function calculate(Request $request)
     {
         return $this->countByDays($request, SupportTicket::class);
+//        if ($request->range == '-') {
+//            $count = SupportTicket::where('created_at', Carbon::today()->toDateString())->count();
+//        } else {
+//            $count = SupportTicket::where(['assigned_to' => $request->range, 'created_at' Carbon::today()->toDateString()])->count();
+//        }
+//        return $this->result($count);
     }
 
     /**
@@ -27,6 +36,13 @@ class SupportTicketsPerDay extends Trend
      */
     public function ranges()
     {
+//        $ranges['-'] = 'All';
+//        $users = User::get();
+//
+//        foreach ($users as $user) {
+//            $ranges[$user->id] = $user->name;
+//        }
+//        return $ranges;
         return [
             7 => '7 Days',
             30 => '30 Days',
